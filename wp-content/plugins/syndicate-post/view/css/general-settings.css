@@ -1,0 +1,28 @@
+.tabs ul.menu {
+    margin:0px;
+}
+.tabs ul.menu li {
+    display: inline-block;
+    padding: 5px;
+    border-top: 1px #003cb3 solid;
+    border-left: 1px #003cb3 solid;
+    border-right: 1px #003cb3 solid;
+}
+.tabs ul.menu .ui-tabs-active {
+    background-color: #9fc1fc;
+}
+.tabs .tab-content {
+    border: 1px #003cb3 solid;
+    padding:5px;
+}
+
+.message {
+    width:calc(100% - 12px);
+    padding:5px;
+    border: 1px #aa8e7f solid;
+}
+
+fieldset {
+    border: 1px solid;
+    padding: 4px 8px;
+}
