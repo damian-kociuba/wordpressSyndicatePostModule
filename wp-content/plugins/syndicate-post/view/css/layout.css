@@ -26,3 +26,7 @@ fieldset {
     border: 1px solid;
     padding: 4px 8px;
 }
+
+input.long-one-line-text {
+    width: 500px;
+}

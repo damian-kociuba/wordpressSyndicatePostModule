@@ -3,13 +3,17 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/var/www/SyndicateWordpressModule/wp-content/plugins/syndicate-post/PostSyndicator.php</file>
+            <file>file:/var/www/SyndicateWordpressModule/wp-content/plugins/syndicate-post/view/accounts-page.php</file>
             <file>file:/var/www/SyndicateWordpressModule/wp-content/plugins/syndicate-post/SpinnerChief.php</file>
-            <file>file:/var/www/SyndicateWordpressModule/wp-content/plugins/syndicate-post/view/css/general-settings.css</file>
             <file>file:/var/www/SyndicateWordpressModule/index.php</file>
             <file>file:/var/www/SyndicateWordpressModule/wp-content/plugins/syndicate-post/view/js/general-settings.js</file>
+            <file>file:/var/www/SyndicateWordpressModule/wp-content/plugins/syndicate-post/PublishDriver/Tumblr/TumblrDriver.php</file>
+            <file>file:/var/www/SyndicateWordpressModule/wp-content/plugins/syndicate-post/PublishDriver/PublishDriver.php</file>
+            <file>file:/var/www/SyndicateWordpressModule/wp-content/plugins/syndicate-post/ajax/accounts.php</file>
+            <file>file:/var/www/SyndicateWordpressModule/wp-content/plugins/syndicate-post/ajax/settings.php</file>
+            <file>file:/var/www/SyndicateWordpressModule/wp-content/plugins/syndicate-post/view/js/accounts.js</file>
             <file>file:/var/www/SyndicateWordpressModule/wp-content/plugins/syndicate-post/view/general-settings-page.php</file>
-            <file>file:/var/www/SyndicateWordpressModule/wp-content/plugins/syndicate-post/View.php</file>
+            <file>file:/var/www/SyndicateWordpressModule/wp-content/plugins/syndicate-post/view/css/layout.css</file>
             <file>file:/var/www/SyndicateWordpressModule/wp-content/plugins/syndicate-post/syndicate-post.php</file>
             <file>file:/var/www/SyndicateWordpressModule/wp-config.php</file>
         </group>

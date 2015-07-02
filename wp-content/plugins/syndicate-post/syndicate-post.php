@@ -11,10 +11,16 @@
   Description: What does your plugin do and what features does it offer...
  */
 
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(-1);
+
 define('SYNDICATE_POST_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SYNDICATE_POST_PLUGIN_URL', plugin_dir_url(__FILE__));
 require_once SYNDICATE_POST_PLUGIN_DIR . 'PostSyndicator.php';
 require_once SYNDICATE_POST_PLUGIN_DIR . 'View.php';
+require_once SYNDICATE_POST_PLUGIN_DIR . 'PublishDriverManager.php';
 
 View::setGlobalViewDirectory(SYNDICATE_POST_PLUGIN_DIR . 'view/');
 View::setGlobalScriptDirectory(SYNDICATE_POST_PLUGIN_URL . 'view/js/');
@@ -96,7 +102,7 @@ $pagePrinters['settings'] = function() {
     $view->addWordpressBuildInScript('jquery');
     $view->addWordpressBuildInScript('jquery-ui-core');
     $view->addWordpressBuildInScript('jquery-ui-tabs');
-    $view->addStyle('general-settings.css');
+    $view->addStyle('layout.css');
     foreach ($defaultFormValues as $field => $value) {
         $view->setParameter($field, $value);
     }
@@ -106,7 +112,33 @@ $pagePrinters['settings'] = function() {
 };
 
 $pagePrinters['accounts'] = function() {
+    $defaultFormValues = array();
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $driverName = filter_input(INPUT_POST, 'driver_name');
+        $driverActive = isset($_POST['driver_'.$driverName. '_is_active']);
+        $driverParameters = $_POST['driver_'.$driverName.'_parameter'];
+        update_option('syndicate_post_driver_'.$driverName.'_is_active', $driverActive);
+        update_option('syndicate_post_driver_'.$driverName.'_parameters', $driverParameters);
+    }
+    $publishDriverManager = new PublishDriverManager();
+    $drivers = $publishDriverManager->getRegistredDrivers();
+    foreach($drivers as $driver) {
+        $defaultFormValues['driver_parameters'][$driver->getName()] = get_option('syndicate_post_driver_'.$driver->getName().'_parameters');
+        $defaultFormValues['driver_active'][$driver->getName()] = get_option('syndicate_post_driver_'.$driver->getName().'_is_active');
+    }
+    
     $view = new View('accounts-page.php');
+    $view->addScript('accounts.js');
+    $view->addWordpressBuildInScript('jquery');
+    $view->addWordpressBuildInScript('jquery-ui-core');
+    $view->addWordpressBuildInScript('jquery-ui-tabs');
+    $view->addStyle('layout.css');
+
+    
+    $view->setParameter('drivers', $drivers);
+    foreach ($defaultFormValues as $field => $value) {
+        $view->setParameter($field, $value);
+    }
     $view->render();
 };
 $pagePrinters['reporting'] = function() {
