@@ -26,7 +26,7 @@ jQuery(function () {
             parameters[paramNameClean] = paramValue;
         });
 
-        jQuery.post(AJAX_URL_PREFIX + 'accounts.php', {
+        jQuery.post(AJAX_TEST_CONNECTION, {
             command: 'test_connection',
             driver_name: driverName,
             driver_parameters: JSON.stringify(parameters),

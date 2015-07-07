@@ -16,7 +16,7 @@
         <?php if(!empty($message)): ?>
             <div class="message"><?php echo $message;?></div>
         <?php endif; ?>
-        <form method="POST">
+        <form method="POST" action="<?php echo $general_settings_form_action;?>">
             <label>Minimal syndicated content length</label>
             <input type="number" name="minimal_syndicated_content_length" <?php if(isset($minimal_syndicated_content_length)) {echo "value=\"$minimal_syndicated_content_length\"";} ?> />
             <br />
@@ -31,7 +31,7 @@
         </form>
     </div>
     <div class="tab-content" id="tabs-2">
-        <form id="spinner_chief_form" method="POST">
+        <form id="spinner_chief_form" method="POST" action="<?php echo $spinner_chief_settings_form_action;?>">
             <label>Api URL</label>
             <input type="text" name="spinner_chief_api_url" <?php if(isset($spinner_chief_api_url)) {echo "value=\"$spinner_chief_api_url\"";} else {echo "value=\"api.spinnerchief.com:443\"";}?> />
             <br />
@@ -50,7 +50,7 @@
         </form>
     </div>
     <div class="tab-content" id="tabs-3">
-        <form id="notification_form" method="POST">
+        <form id="notification_form" method="POST" action="<?php echo $notification_settings_form_action;?>">
             <fieldset>
                 <legend>PHP Mailer</legend>
                 <label>Host</label>

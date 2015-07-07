@@ -26,5 +26,6 @@ function test_connection() {
         echo json_encode($driver->testConnection());
     } catch (Exception $e) {
         echo json_encode(false);
+        throw $e;
     }
 }

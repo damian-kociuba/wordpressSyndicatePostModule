@@ -15,4 +15,8 @@ interface PublishDriver {
     public function publish($title, $content);
 
     public function getName();
+    
+    public function preserveParameters();
+
+    public function loadPreservedParameters();
 }

@@ -1,33 +1,54 @@
 <?php
 
-require_once realpath(dirname(__FILE__) . '/../PublishDriver.php');
+require_once realpath(dirname(__FILE__) . '/../OAuth2PublishDriver.php');
+require_once 'client/google-api-php-client/src/Google/autoload.php';
 
 /**
  *
  * @author dkociuba
  */
-class BloggerDriver implements PublishDriver {
+class BloggerDriver implements OAuth2PublishDriver {
 
-    private $customerKey;
-    private $secretKey;
-    private $token;
-    private $secret;
-    
+    private $clientId;
+    private $clientSecret;
+    private $developerKey;
+    private $redirectURL;
+    private $accessToken;
+
+    /**
+     * authentication code receiving from blogger
+     */
+    private $code;
+
     public function getName() {
         return 'Blogger';
+    }
+
+    function getRedirectURL() {
+        return $this->redirectURL;
+    }
+
+    function setRedirectURL($redirectURL) {
+        $this->redirectURL = $redirectURL;
     }
 
     public function getRequiredParameters() {
         return array(
             array(
-                'name' => 'customer_key',
-                'label' => 'Customer key'
+                'name' => 'clientId',
+                'label' => 'Client Id',
+                'value' => $this->clientId
             ),
             array(
-                'name' => 'secret_key',
-                'label' => 'Secret key'
+                'name' => 'clientSecret',
+                'label' => 'Client Secret',
+                'value' => $this->clientSecret
             ),
-            
+            array(
+                'name' => 'developerKey',
+                'label' => 'Developer key',
+                'value' => $this->developerKey
+            ),
         );
     }
 
@@ -35,16 +56,79 @@ class BloggerDriver implements PublishDriver {
         
     }
 
+    public function preserveParameters() {
+        $parameters = array(
+            'clientId' => $this->clientId,
+            'clientSecret' => $this->clientSecret,
+            'developerKey' => $this->developerKey,
+            'code' => $this->code,
+            'accessToken' => $this->accessToken
+        );
+        update_option('syndicate_post_driver_blogger_parameters', $parameters);
+    }
+
+    public function loadPreservedParameters() {
+        $parameters = get_option('syndicate_post_driver_blogger_parameters');
+        if (empty($parameters)) {
+            return;
+        }
+        $this->setRequiredParameters($parameters);
+
+        if (!empty($parameters['code'])) {
+            $this->code = $parameters['code'];
+        }
+        if (!empty($parameters['accessToken'])) {
+            $this->accessToken = $parameters['accessToken'];
+        }
+    }
+
     public function setRequiredParameters($parameters) {
-        $this->customerKey = $parameters['customer_key'];
-        $this->secretKey = $parameters['secret_key'];
-        $this->token = $parameters['token'];
-        $this->secret = $parameters['secret'];
+        $this->clientId = $parameters['clientId'];
+        $this->clientSecret = $parameters['clientSecret'];
+        $this->developerKey = $parameters['developerKey'];
     }
 
     public function testConnection() {
-       return true;
+        $this->loadPreservedParameters();
+        $client = $this->getClient();
+        $blogger = new Google_Service_Blogger($client);
+
+        $mypost = new Google_Service_Blogger_Post();
+        $mypost->setTitle('This is post by API');
+        $mypost->setContent('I\'m trying to publish post using api.');
+
+        $data = $blogger->posts->insert('430038883852578291', $mypost); //post id needs here - put your blogger blog id
+        var_dump($data);
     }
 
-//put your code here
+    public function getLoginUrl() {
+        $client = $this->getClient();
+        return $client->createAuthUrl();
+    }
+
+    public function readAuthenticationCode() {
+        if (isset($_GET['code'])) { // we received the positive auth callback, get the token and store it in session
+            $this->loadPreservedParameters();
+            $client = $this->getClient();
+            $this->code = $_GET['code'];
+            $client->authenticate($this->code);
+            $this->accessToken = $client->getAccessToken();
+            $this->preserveParameters();
+        }
+    }
+
+    private function getClient() {
+        $client = new Google_Client();
+        $client->setAccessType('online');
+        $client->setClientId($this->clientId);
+        $client->setClientSecret($this->clientSecret);
+        $client->setDeveloperKey($this->developerKey);
+        $client->setScopes(array('https://www.googleapis.com/auth/blogger'));
+        $client->setRedirectUri($this->redirectURL);
+        if(!empty($this->accessToken)) {
+            $client->setAccessToken($this->accessToken);
+        }
+        return $client;
+    }
+
 }

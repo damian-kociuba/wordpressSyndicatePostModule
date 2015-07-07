@@ -14,30 +14,49 @@ class TumblrDriver implements PublishDriver {
     private $secretKey;
     private $token;
     private $secret;
-    
+
     public function getName() {
-        return 'Thumblr';
+        return 'Tumblr';
     }
 
     public function getRequiredParameters() {
         return array(
             array(
                 'name' => 'customer_key',
-                'label' => 'Customer key'
+                'label' => 'Customer key',
+                'value' => $this->customerKey
             ),
             array(
                 'name' => 'secret_key',
-                'label' => 'Secret key'
+                'label' => 'Secret key',
+                'value' => $this->secretKey
             ),
             array(
                 'name' => 'token',
-                'label' => 'Token'
+                'label' => 'Token',
+                'value' => $this->token
             ),
             array(
                 'name' => 'secret',
-                'label' => 'Secret'
+                'label' => 'Secret',
+                'value' => $this->secret
             ),
         );
+    }
+
+    public function preserveParameters() {
+        $parameters = array(
+            'customer_key' => $this->customerKey,
+            'secret_key' => $this->secretKey,
+            'token' => $this->token,
+            'secret' => $this->secret
+        );
+        update_option('syndicate_post_driver_tumblr_parameters', $parameters);
+    }
+
+    public function loadPreservedParameters() {
+        $parameters = get_option('syndicate_post_driver_tumblr_parameters');
+        $this->setRequiredParameters($parameters);
     }
 
     public function publish($title, $content) {
@@ -57,12 +76,11 @@ class TumblrDriver implements PublishDriver {
         );
 
         $response = $client->getUserInfo();
-        if(isset($response->user)) {
+        if (isset($response->user)) {
             return true;
         } else {
             return false;
         }
-        
     }
 
 //put your code here
