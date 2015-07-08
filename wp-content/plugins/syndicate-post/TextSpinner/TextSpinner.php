@@ -5,5 +5,6 @@
  * @author dkociuba
  */
 interface TextSpinner {
-    public function spinText($text);
+    public function setTextToSpin($text);
+    public function getNextVariant();
 }

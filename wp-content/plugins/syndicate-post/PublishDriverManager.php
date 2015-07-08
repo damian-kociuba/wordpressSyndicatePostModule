@@ -11,6 +11,10 @@ require_once 'PublishDriver/PublishDriver.php';
  */
 class PublishDriverManager {
 
+    /**
+     *
+     * @var PublishDriver[]
+     */
     private $registredDrivers = array();
 
     public function __construct() {

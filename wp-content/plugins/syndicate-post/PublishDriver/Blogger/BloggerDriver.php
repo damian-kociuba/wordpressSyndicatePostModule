@@ -15,6 +15,7 @@ class BloggerDriver implements OAuth2PublishDriver, Preverseable {
     private $redirectURL;
     private $accessToken;
     private $isActive;
+    private $blogId;
 
     /**
      * authentication code receiving from blogger
@@ -58,11 +59,23 @@ class BloggerDriver implements OAuth2PublishDriver, Preverseable {
                 'label' => 'Developer key',
                 'value' => $this->developerKey
             ),
+            array(
+                'name' => 'blogId',
+                'label' => 'Blog id',
+                'value' => $this->blogId
+            ),
         );
     }
 
     public function publish($title, $content) {
-        
+        $client = $this->getClient();
+        $blogger = new Google_Service_Blogger($client);
+
+        $mypost = new Google_Service_Blogger_Post();
+        $mypost->setTitle($title);
+        $mypost->setContent($content);
+
+        $data = $blogger->posts->insert($this->blogId, $mypost); //post id needs here - put your blogger blog id
     }
 
     public function preserveParameters() {
@@ -72,7 +85,8 @@ class BloggerDriver implements OAuth2PublishDriver, Preverseable {
             'clientSecret' => $this->clientSecret,
             'developerKey' => $this->developerKey,
             'code' => $this->code,
-            'accessToken' => $this->accessToken
+            'accessToken' => $this->accessToken,
+            'blogId' => $this->blogId
         );
         update_option('syndicate_post_driver_blogger_parameters', $parameters);
     }
@@ -94,21 +108,14 @@ class BloggerDriver implements OAuth2PublishDriver, Preverseable {
     }
 
     public function setRequiredParameters($parameters) {
-        $this->clientId = $parameters['clientId'];
-        $this->clientSecret = $parameters['clientSecret'];
-        $this->developerKey = $parameters['developerKey'];
+        $this->clientId = isset($parameters['clientId']) ? $parameters['clientId'] : null;
+        $this->clientSecret = isset($parameters['clientSecret']) ? $parameters['clientSecret'] : null;
+        $this->developerKey = isset($parameters['developerKey']) ? $parameters['developerKey'] : null;
+        $this->blogId = isset($parameters['blogId']) ? $parameters['blogId'] : null;
     }
 
     public function testConnection() {
-        $this->loadPreservedParameters();
-        $client = $this->getClient();
-        $blogger = new Google_Service_Blogger($client);
-
-        $mypost = new Google_Service_Blogger_Post();
-        $mypost->setTitle('This is post by API');
-        $mypost->setContent('I\'m trying to publish post using api.');
-
-        $data = $blogger->posts->insert('430038883852578291', $mypost); //post id needs here - put your blogger blog id
+        
     }
 
     public function getLoginUrl() {

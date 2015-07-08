@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @package Syndicate-post
  */
@@ -21,17 +20,48 @@ define('SYNDICATE_POST_PLUGIN_URL', plugin_dir_url(__FILE__));
 require_once SYNDICATE_POST_PLUGIN_DIR . 'PostSyndicator.php';
 require_once SYNDICATE_POST_PLUGIN_DIR . 'controller/SettingsAccounts.php';
 require_once SYNDICATE_POST_PLUGIN_DIR . 'controller/SettingsGeneral.php';
+require_once SYNDICATE_POST_PLUGIN_DIR . 'SyndicatePostException.php';
+require_once SYNDICATE_POST_PLUGIN_DIR . 'DisposableAdminMessage.php';
+require_once SYNDICATE_POST_PLUGIN_DIR . 'TextSpinner/TextSpinnerException.php';
 
 View::setGlobalViewDirectory(SYNDICATE_POST_PLUGIN_DIR . 'view/');
 View::setGlobalScriptDirectory(SYNDICATE_POST_PLUGIN_URL . 'view/js/');
 View::setGlobalStyleDirectory(SYNDICATE_POST_PLUGIN_URL . 'view/css/');
 
+$initDisposableAdminMessages = function() {
+    if (!session_id()) {
+        session_start();
+    }
+};
+
+add_action('admin_init', $initDisposableAdminMessages);
+
 $syndicatePostEvent = function ($postId) {
     $post = get_post($postId);
-    $postSyndicator = new PostSyndicator($post);
+    try {
+        $postSyndicator = new PostSyndicator($post);
+        $postSyndicator->syndicate();
+    } catch (TextSpinnerException $ex) {
+        DisposableAdminMessage::getInstance()->pushMessage($ex->getMessage(). ' Message not sended to linked blogs');
+    } catch (SyndicatePostException $ex) {
+        DisposableAdminMessage::getInstance()->pushMessage($ex->getMessage());
+    }
 };
 
 add_action('publish_post', $syndicatePostEvent);
+
+$printErrorsMessages = function() {
+    while ($msg = DisposableAdminMessage::getInstance()->popMessage()) :
+        ?>
+        <div class="error">
+            <p><?php echo $msg; ?></p>
+        </div>
+        <?php
+    endwhile;
+};
+
+add_action('admin_notices', $printErrorsMessages);
+
 
 
 $pagePrinters = array();

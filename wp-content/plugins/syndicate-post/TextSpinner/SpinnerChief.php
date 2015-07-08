@@ -1,7 +1,9 @@
 <?php
 
 require_once 'TextSpinner.php';
+require_once 'TextSpinnerException.php';
 require_once SYNDICATE_POST_PLUGIN_DIR . 'Preverseable.php';
+
 /**
  * @author dkociuba
  */
@@ -10,6 +12,12 @@ class SpinnerChief implements TextSpinner, Preverseable {
     private $username;
     private $password;
     private $apikey;
+    
+    /**
+     * result of spinnerChief's work
+     * @var string
+     */
+    private $rawText;
     //Default values:
     private $orderly = 0;
     private $useGrammarAI = 0;
@@ -35,6 +43,36 @@ class SpinnerChief implements TextSpinner, Preverseable {
     private $replacetype = 0;
     private $phrasecount = 2;
     private $address = 'api.spinnerchief.com:443';
+    //mapping attributes to variable name in config
+    private $configVariablesMap = array(
+        'address' => 'address',
+        'spintype' => 'spinType',
+        'spinfreq' => 'spinFreq',
+        'autospin' => 'autoSpin',
+        'original' => 'notUseOglword',
+        'wordscount' => 'wordscount',
+        'usehurricane' => 'useHurricane',
+        'chartype' => 'charType',
+        'convertbase' => 'convertBase',
+        'onecharforword' => 'oneCharForword',
+        'percent' => 'percent',
+        'protecthtml' => 'protectHTML',
+        'spinhtml' => 'spinHTML',
+        'orderly' => 'orderly',
+        'wordquality' => 'wordQuality',
+        'username' => 'username',
+        'password' => 'password',
+        'apikey' => 'apikey',
+        'protectwords' => 'protectWords',
+        'querytimes' => 'querytimes',
+        'replacetype' => 'replacetype',
+        'pos' => 'usePartOfSpeech',
+        'UseGrammarAI' => 'useGrammarAI',
+        'rule' => 'rule',
+        'thesaurus' => 'thesaurus',
+        'phrasecount' => 'phrasecount',
+        'tagprotect' => 'tagProtect',
+    );
 
     function getUsername() {
         return $this->username;
@@ -257,8 +295,22 @@ class SpinnerChief implements TextSpinner, Preverseable {
         return $this->spinTextToRawFormat('') === '';
     }
 
-    public function spinText($text) {
-        $rawText = $this->spinTextToRawFormat($text);
+    public function setTextToSpin($text) {
+         $this->rawText = $this->spinTextToRawFormat($text);
+         $matches = array();
+         if(preg_match('/^\s*error=(.*)/', $this->rawText, $matches)) {
+             throw new TextSpinnerException('Error until spinning:'. $matches[1]);
+         }
+    }
+    public function getNextVariant() {
+        $findCallback = function($matches) {
+            $alternatives = explode('|',$matches[1]);
+            $replacementNumber = rand(0, count($alternatives)-1); 
+            $replacement = $alternatives[$replacementNumber];
+            return $replacement;
+        };
+        $readyText = preg_replace_callback('/{(([^\|{}]*\|)*[^\{}|]*)}/', $findCallback, $this->rawText);
+        return $readyText;
     }
 
     private function spinTextToRawFormat($text) {
@@ -345,63 +397,19 @@ class SpinnerChief implements TextSpinner, Preverseable {
     public function loadPreservedParameters() {
         $params = get_option('syndicate_post_spinner_parameters');
 
-        $this->spinType = $params['spintype'];
-        $this->spinFreq = $params['spinfreq'];
-        $this->autoSpin = $params['autospin'];
-        $this->notUseOglword = $params['original'];
-        $this->wordscount = $params['wordscount'];
-        $this->useHurricane = $params['usehurricane'];
-        $this->charType = $params['chartype'];
-        $this->convertBase = $params['convertbase'];
-        $this->oneCharForword = $params['onecharforword'];
-        $this->percent = $params['percent'];
-        $this->protectHTML = $params['protecthtml'];
-        $this->spinHTML = $params['spinhtml'];
-        $this->orderly = $params['orderly'];
-        $this->wordQuality = $params['wordquality'];
-        $this->username = $params['username'];
-        $this->password = $params['password'];
-        $this->apikey = $params['apikey'];
-        $this->protectWords = $params['protectwords'];
-        $this->querytimes = $params['querytimes'];
-        $this->replacetype = $params['replacetype'];
-        $this->usePartOfSpeech = $params['pos'];
-        $this->useGrammarAI = $params['UseGrammarAI'];
-        $this->rule = $params['rule'];
-        $this->thesaurus = $params['thesaurus'];
-        $this->phrasecount = $params['phrasecount'];
-        $this->tagProtect = $params['tagprotect'];
+        foreach ($this->configVariablesMap as $configName => $attribute) {
+            if (empty($params[$configName])) {
+                continue;
+            }
+
+            $this->$attribute = $params[$configName];
+        }
     }
 
     public function preserveParameters() {
-        $params = array(
-            'spintype' => $this->spinType,
-            'spinfreq' => $this->spinFreq,
-            'autospin' => $this->autoSpin,
-            'original' => $this->notUseOglword,
-            'wordscount' => $this->wordscount,
-            'usehurricane' => $this->useHurricane,
-            'chartype' => $this->charType,
-            'convertbase' => $this->convertBase,
-            'onecharforword' => $this->oneCharForword,
-            'percent' => $this->percent,
-            'protecthtml' => $this->protectHTML,
-            'spinhtml' => $this->spinHTML,
-            'orderly' => $this->orderly,
-            'wordquality' => $this->wordQuality,
-            'username' => $this->username,
-            'password' => $this->password,
-            'apikey' => $this->apikey,
-            'protectwords' => $this->protectWords,
-            'querytimes' => $this->querytimes,
-            'replacetype' => $this->replacetype,
-            'pos' => $this->usePartOfSpeech,
-            'UseGrammarAI' => $this->useGrammarAI,
-            'rule' => $this->rule,
-            'thesaurus' => $this->thesaurus,
-            'phrasecount' => $this->phrasecount,
-            'tagprotect' => $this->tagProtect
-        );
+        foreach ($this->configVariablesMap as $configName => $attribute) {
+            $params[$configName] = $this->$attribute;
+        }
         update_option('syndicate_post_spinner_parameters', $params);
     }
 

@@ -3,6 +3,7 @@
 require_once realpath(dirname(__FILE__) . '/../PublishDriver.php');
 require_once 'client/vendor/autoload.php';
 require_once SYNDICATE_POST_PLUGIN_DIR . 'Preverseable.php';
+
 /**
  * Description of ThumblrDriver
  *
@@ -15,6 +16,7 @@ class TumblrDriver implements PublishDriver, Preverseable {
     private $token;
     private $secret;
     private $isActive;
+    private $blogName;
 
     public function getName() {
         return 'Tumblr';
@@ -50,6 +52,11 @@ class TumblrDriver implements PublishDriver, Preverseable {
                 'label' => 'Secret',
                 'value' => $this->secret
             ),
+            array(
+                'name' => 'blogName',
+                'label' => 'Blog name',
+                'value' => $this->blogName
+            ),
         );
     }
 
@@ -59,7 +66,8 @@ class TumblrDriver implements PublishDriver, Preverseable {
             'customer_key' => $this->customerKey,
             'secret_key' => $this->secretKey,
             'token' => $this->token,
-            'secret' => $this->secret
+            'secret' => $this->secret,
+            'blogName' => $this->blogName
         );
         update_option('syndicate_post_driver_tumblr_parameters', $parameters);
     }
@@ -71,20 +79,21 @@ class TumblrDriver implements PublishDriver, Preverseable {
     }
 
     public function publish($title, $content) {
-        
+        $client = $this->getClient();
+        $postData = array('title' => $title, 'body' => $content);
+        $client->createPost($this->blogName, $postData);
     }
 
     public function setRequiredParameters($parameters) {
-        $this->customerKey = $parameters['customer_key'];
-        $this->secretKey = $parameters['secret_key'];
-        $this->token = $parameters['token'];
-        $this->secret = $parameters['secret'];
+        $this->customerKey = isset($parameters['customer_key']) ? $parameters['customer_key'] : null;
+        $this->secretKey = isset($parameters['secret_key']) ? $parameters['secret_key'] : null;
+        $this->token = isset($parameters['token']) ? $parameters['token'] : null;
+        $this->secret = isset($parameters['secret']) ? $parameters['secret'] : null;
+        $this->blogName = isset($parameters['blogName']) ? $parameters['blogName'] : null;
     }
 
     public function testConnection() {
-        $client = new Tumblr\API\Client(
-                $this->customerKey, $this->secretKey, $this->token, $this->secret
-        );
+        $client = $this->getClient();
 
         $response = $client->getUserInfo();
         if (isset($response->user)) {
@@ -92,6 +101,16 @@ class TumblrDriver implements PublishDriver, Preverseable {
         } else {
             return false;
         }
+    }
+
+    /**
+     * 
+     * @return \Tumblr\API\Client
+     */
+    private function getClient() {
+        return new Tumblr\API\Client(
+                $this->customerKey, $this->secretKey, $this->token, $this->secret
+        );
     }
 
 //put your code here
