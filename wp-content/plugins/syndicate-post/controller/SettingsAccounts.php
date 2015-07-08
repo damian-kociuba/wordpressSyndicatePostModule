@@ -32,7 +32,6 @@ class SettingsAccounts extends Controller {
 
         $drivers = $this->publishDriverManager->getRegistredDrivers();
         foreach ($drivers as $driver) {
-            $defaultFormValues['driver_active'][$driver->getName()] = get_option('syndicate_post_driver_' . $driver->getName() . '_is_active');
             $driver->loadPreservedParameters();
             if ($driver instanceof OAuth2PublishDriver) {
                 $driver->setRedirectURL($this->getLinkToRoute('handleRedirect', false, array('driver' => 'blogger')));
@@ -57,12 +56,11 @@ class SettingsAccounts extends Controller {
 
     public function actionHandleFormWithSettings() {
         $driverName = filter_input(INPUT_POST, 'driver_name');
-        $driverActive = isset($_POST['driver_' . $driverName . '_is_active']);
         $driverParameters = $_POST['driver_' . $driverName . '_parameter'];
         $driver = $this->publishDriverManager->getDriverByName($driverName);
         $driver->setRequiredParameters($driverParameters);
+        $driver->setIsActive(isset($_POST['driver_' . $driverName . '_is_active']));
         $driver->preserveParameters();
-        update_option('syndicate_post_driver_' . $driverName . '_is_active', $driverActive);
 
         $this->actionIndex();
     }
@@ -81,6 +79,7 @@ class SettingsAccounts extends Controller {
             } else {
                 throw new Exception('Driver not implement OAuth2PublishDriver interface');
             }
+            
         } catch (Exception $e) {
             $view->setParameter('errorMessage', $e->getMessage());
             $view->render();

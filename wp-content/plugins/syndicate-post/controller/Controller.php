@@ -29,19 +29,13 @@ abstract class Controller {
         if ($noHeader) {
             $newGet['noheader'] = true;
         } 
-        unset($_GET);
-        
-        //rewriting $newGet to $_GET
-        foreach ($newGet as $key => $value) {
-            $_GET[$key] = $value;
-        }
         
         //rewriting $data to $_GET
         foreach ($data as $key => $value) {
-            $_GET[$key] = $value;
+            $newGet[$key] = $value;
         }
 
-        return $baseUrl . '?' . http_build_query($_GET);
+        return $baseUrl . '?' . http_build_query($newGet);
     }
 
     private function currentPageURL() {

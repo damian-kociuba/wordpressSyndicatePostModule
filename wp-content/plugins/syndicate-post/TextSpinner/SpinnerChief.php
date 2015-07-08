@@ -1,9 +1,11 @@
 <?php
 
+require_once 'TextSpinner.php';
+require_once SYNDICATE_POST_PLUGIN_DIR . 'Preverseable.php';
 /**
  * @author dkociuba
  */
-class SpinnerChief {
+class SpinnerChief implements TextSpinner, Preverseable {
 
     private $username;
     private $password;
@@ -252,9 +254,14 @@ class SpinnerChief {
 
     public function testConnection() {
         //resut of spinning emty string is empty string too. When error occur, returned string isnt empty
-        return $this->spinText('') === '';
+        return $this->spinTextToRawFormat('') === '';
     }
+
     public function spinText($text) {
+        $rawText = $this->spinTextToRawFormat($text);
+    }
+
+    private function spinTextToRawFormat($text) {
         $this->validateParameters();
         $urlSufix = $this->prepareGetPartOfUrl();
         list($url, $port) = explode(':', $this->address);
@@ -263,7 +270,7 @@ class SpinnerChief {
         }
 
         $spinnedText = $this->curl_request('http://' . $url . ':' . $port . $urlSufix, $text);
-        
+
         return $spinnedText;
     }
 
@@ -333,6 +340,69 @@ class SpinnerChief {
         $result = trim(curl_exec($req));
         curl_close($req);
         return $result;
+    }
+
+    public function loadPreservedParameters() {
+        $params = get_option('syndicate_post_spinner_parameters');
+
+        $this->spinType = $params['spintype'];
+        $this->spinFreq = $params['spinfreq'];
+        $this->autoSpin = $params['autospin'];
+        $this->notUseOglword = $params['original'];
+        $this->wordscount = $params['wordscount'];
+        $this->useHurricane = $params['usehurricane'];
+        $this->charType = $params['chartype'];
+        $this->convertBase = $params['convertbase'];
+        $this->oneCharForword = $params['onecharforword'];
+        $this->percent = $params['percent'];
+        $this->protectHTML = $params['protecthtml'];
+        $this->spinHTML = $params['spinhtml'];
+        $this->orderly = $params['orderly'];
+        $this->wordQuality = $params['wordquality'];
+        $this->username = $params['username'];
+        $this->password = $params['password'];
+        $this->apikey = $params['apikey'];
+        $this->protectWords = $params['protectwords'];
+        $this->querytimes = $params['querytimes'];
+        $this->replacetype = $params['replacetype'];
+        $this->usePartOfSpeech = $params['pos'];
+        $this->useGrammarAI = $params['UseGrammarAI'];
+        $this->rule = $params['rule'];
+        $this->thesaurus = $params['thesaurus'];
+        $this->phrasecount = $params['phrasecount'];
+        $this->tagProtect = $params['tagprotect'];
+    }
+
+    public function preserveParameters() {
+        $params = array(
+            'spintype' => $this->spinType,
+            'spinfreq' => $this->spinFreq,
+            'autospin' => $this->autoSpin,
+            'original' => $this->notUseOglword,
+            'wordscount' => $this->wordscount,
+            'usehurricane' => $this->useHurricane,
+            'chartype' => $this->charType,
+            'convertbase' => $this->convertBase,
+            'onecharforword' => $this->oneCharForword,
+            'percent' => $this->percent,
+            'protecthtml' => $this->protectHTML,
+            'spinhtml' => $this->spinHTML,
+            'orderly' => $this->orderly,
+            'wordquality' => $this->wordQuality,
+            'username' => $this->username,
+            'password' => $this->password,
+            'apikey' => $this->apikey,
+            'protectwords' => $this->protectWords,
+            'querytimes' => $this->querytimes,
+            'replacetype' => $this->replacetype,
+            'pos' => $this->usePartOfSpeech,
+            'UseGrammarAI' => $this->useGrammarAI,
+            'rule' => $this->rule,
+            'thesaurus' => $this->thesaurus,
+            'phrasecount' => $this->phrasecount,
+            'tagprotect' => $this->tagProtect
+        );
+        update_option('syndicate_post_spinner_parameters', $params);
     }
 
 }

@@ -2,18 +2,19 @@
 
 require_once realpath(dirname(__FILE__) . '/../OAuth2PublishDriver.php');
 require_once 'client/google-api-php-client/src/Google/autoload.php';
-
+require_once SYNDICATE_POST_PLUGIN_DIR . 'Preverseable.php';
 /**
  *
  * @author dkociuba
  */
-class BloggerDriver implements OAuth2PublishDriver {
+class BloggerDriver implements OAuth2PublishDriver, Preverseable {
 
     private $clientId;
     private $clientSecret;
     private $developerKey;
     private $redirectURL;
     private $accessToken;
+    private $isActive;
 
     /**
      * authentication code receiving from blogger
@@ -22,6 +23,14 @@ class BloggerDriver implements OAuth2PublishDriver {
 
     public function getName() {
         return 'Blogger';
+    }
+
+    function getIsActive() {
+        return $this->isActive;
+    }
+
+    function setIsActive($isActive) {
+        $this->isActive = $isActive;
     }
 
     function getRedirectURL() {
@@ -58,6 +67,7 @@ class BloggerDriver implements OAuth2PublishDriver {
 
     public function preserveParameters() {
         $parameters = array(
+            'isActive' =>$this->isActive,
             'clientId' => $this->clientId,
             'clientSecret' => $this->clientSecret,
             'developerKey' => $this->developerKey,
@@ -80,6 +90,7 @@ class BloggerDriver implements OAuth2PublishDriver {
         if (!empty($parameters['accessToken'])) {
             $this->accessToken = $parameters['accessToken'];
         }
+        $this->isActive = !empty($parameters['isActive']);
     }
 
     public function setRequiredParameters($parameters) {
@@ -98,7 +109,6 @@ class BloggerDriver implements OAuth2PublishDriver {
         $mypost->setContent('I\'m trying to publish post using api.');
 
         $data = $blogger->posts->insert('430038883852578291', $mypost); //post id needs here - put your blogger blog id
-        var_dump($data);
     }
 
     public function getLoginUrl() {
@@ -125,7 +135,7 @@ class BloggerDriver implements OAuth2PublishDriver {
         $client->setDeveloperKey($this->developerKey);
         $client->setScopes(array('https://www.googleapis.com/auth/blogger'));
         $client->setRedirectUri($this->redirectURL);
-        if(!empty($this->accessToken)) {
+        if (!empty($this->accessToken)) {
             $client->setAccessToken($this->accessToken);
         }
         return $client;

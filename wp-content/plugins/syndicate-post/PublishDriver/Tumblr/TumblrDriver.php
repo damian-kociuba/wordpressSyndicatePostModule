@@ -2,21 +2,30 @@
 
 require_once realpath(dirname(__FILE__) . '/../PublishDriver.php');
 require_once 'client/vendor/autoload.php';
-
+require_once SYNDICATE_POST_PLUGIN_DIR . 'Preverseable.php';
 /**
  * Description of ThumblrDriver
  *
  * @author dkociuba
  */
-class TumblrDriver implements PublishDriver {
+class TumblrDriver implements PublishDriver, Preverseable {
 
     private $customerKey;
     private $secretKey;
     private $token;
     private $secret;
+    private $isActive;
 
     public function getName() {
         return 'Tumblr';
+    }
+
+    function getIsActive() {
+        return $this->isActive;
+    }
+
+    function setIsActive($isActive) {
+        $this->isActive = $isActive;
     }
 
     public function getRequiredParameters() {
@@ -46,6 +55,7 @@ class TumblrDriver implements PublishDriver {
 
     public function preserveParameters() {
         $parameters = array(
+            'isActive' => $this->isActive,
             'customer_key' => $this->customerKey,
             'secret_key' => $this->secretKey,
             'token' => $this->token,
@@ -56,6 +66,7 @@ class TumblrDriver implements PublishDriver {
 
     public function loadPreservedParameters() {
         $parameters = get_option('syndicate_post_driver_tumblr_parameters');
+        $this->isActive = !empty($parameters['isActive']);
         $this->setRequiredParameters($parameters);
     }
 

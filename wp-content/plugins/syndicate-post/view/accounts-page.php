@@ -19,7 +19,7 @@ require_once realpath(SYNDICATE_POST_PLUGIN_DIR . 'PublishDriver/OAuth2PublishDr
         <div class="tab-content" id="tabs-<?php echo $i; ?>">
             <form method="POST">
                 <label>Active?</label>
-                <input type="checkbox" name="driver_<?php echo $driver->getName(); ?>_is_active" <?php if ($driver_active[$driver->getName()]): ?> checked="checked"<?php endif; ?>/>
+                <input type="checkbox" name="driver_<?php echo $driver->getName(); ?>_is_active" <?php if ($driver->getIsActive()): ?> checked="checked"<?php endif; ?>/>
                 <br />
                 <?php $fields = $driver->getRequiredParameters(); ?>
                 <?php foreach ($fields as $field): ?>

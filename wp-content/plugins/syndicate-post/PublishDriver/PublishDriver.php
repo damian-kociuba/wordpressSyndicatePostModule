@@ -16,7 +16,7 @@ interface PublishDriver {
 
     public function getName();
     
-    public function preserveParameters();
-
-    public function loadPreservedParameters();
+    public function getIsActive();
+    
+    public function setIsActive($isActive);
 }

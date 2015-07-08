@@ -3,6 +3,7 @@
 require_once 'Controller.php';
 require_once SYNDICATE_POST_PLUGIN_DIR . 'View.php';
 require_once SYNDICATE_POST_PLUGIN_DIR . 'PublishDriverManager.php';
+require_once SYNDICATE_POST_PLUGIN_DIR . 'TextSpinner/SpinnerChief.php';
 
 /**
  * Description of settingsAccounts
@@ -22,13 +23,15 @@ class SettingsGeneral extends Controller {
         $message = '';
         $defaultFormValues = array();
 
+        $spinnerChief = new SpinnerChief();
+        $spinnerChief->loadPreservedParameters();
         $defaultFormValues['minimal_syndicated_content_length'] = get_option('syndicate_post_minimal_syndicated_content_length');
         $defaultFormValues['maximal_syndicated_content_length'] = get_option('syndicate_post_maximal_syndicated_content_length');
         $defaultFormValues['default_anchor_text'] = get_option('syndicate_post_default_anchor_text');
-        $defaultFormValues['spinner_chief_url'] = get_option('syndicate_post_spinner_chief_url');
-        $defaultFormValues['spinner_chief_username'] = get_option('syndicate_post_spinner_chief_username');
-        $defaultFormValues['spinner_chief_password'] = get_option('syndicate_post_spinner_chief_password');
-        $defaultFormValues['spinner_chief_api_key'] = get_option('syndicate_post_spinner_chief_api_key');
+        $defaultFormValues['spinner_chief_url'] = $spinnerChief->getAddress();
+        $defaultFormValues['spinner_chief_username'] = $spinnerChief->getUsername();
+        $defaultFormValues['spinner_chief_password'] = $spinnerChief->getPassword();
+        $defaultFormValues['spinner_chief_api_key'] = $spinnerChief->getApikey();
         $defaultFormValues['phpmailer_host'] = get_option('syndicate_post_phpmailer_host');
         $defaultFormValues['phpmailer_username'] = get_option('syndicate_post_phpmailer_username');
         $defaultFormValues['phpmailer_password'] = get_option('syndicate_post_phpmailer_password');
@@ -76,10 +79,13 @@ class SettingsGeneral extends Controller {
         $password = filter_input(INPUT_POST, 'spinner_chief_password');
         $apiKey = filter_input(INPUT_POST, 'spinner_chief_api_key');
 
-        update_option('syndicate_post_spinner_chief_url', $url);
-        update_option('syndicate_post_spinner_chief_username', $username);
-        update_option('syndicate_post_spinner_chief_password', $password);
-        update_option('syndicate_post_spinner_chief_api_key', $apiKey);
+        $spinnerChief = new SpinnerChief();
+        $spinnerChief->loadPreservedParameters();
+        $spinnerChief->setAddress($url);
+        $spinnerChief->setUsername($username);
+        $spinnerChief->setPassword($password);
+        $spinnerChief->setApikey($apiKey);
+        $spinnerChief->preserveParameters();
         
         header('Location: '.$this->getLinkToRoute('index'));
     }
