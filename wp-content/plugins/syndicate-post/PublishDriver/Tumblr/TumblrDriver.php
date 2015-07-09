@@ -17,6 +17,7 @@ class TumblrDriver implements PublishDriver, Preverseable {
     private $secret;
     private $isActive;
     private $blogName;
+    private $lastPublishedPostURL;
 
     public function getName() {
         return 'Tumblr';
@@ -81,7 +82,16 @@ class TumblrDriver implements PublishDriver, Preverseable {
     public function publish($title, $content) {
         $client = $this->getClient();
         $postData = array('title' => $title, 'body' => $content);
-        $client->createPost($this->blogName, $postData);
+        $data = $client->createPost($this->blogName, $postData);
+        
+        $url = $this->loadBlogUrl();
+        $url .= 'post/';
+        $url .= $data->id;
+        $this->lastPublishedPostURL = $url;
+    }
+    
+    public function getPublishedPostURL() {
+        return $this->lastPublishedPostURL;
     }
 
     public function setRequiredParameters($parameters) {
@@ -93,14 +103,19 @@ class TumblrDriver implements PublishDriver, Preverseable {
     }
 
     public function testConnection() {
-        $client = $this->getClient();
+        $blogUrl = $this->loadBlogUrl();
 
-        $response = $client->getUserInfo();
-        if (isset($response->user)) {
+        if (isset($blogUrl)) {
             return true;
         } else {
             return false;
         }
+    }
+    
+    private function loadBlogUrl(){
+        $client = $this->getClient();
+        $blogInfo = $client->getBlogInfo($this->blogName);
+        return $blogInfo->blog->url;
     }
 
     /**

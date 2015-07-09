@@ -26,7 +26,11 @@ class DisposableAdminMessage {
         if (!session_id()) {
             throw new Exception('Class ' . __CLASS__ . 'needs session start');
         }
-        $this->messages = json_decode($_SESSION['DisposableAdminMessages']);
+        if (empty($_SESSION['DisposableAdminMessages'])) {
+            $this->messages = array();
+        } else {
+            $this->messages = json_decode($_SESSION['DisposableAdminMessages']);
+        }
     }
 
     public function __destruct() {

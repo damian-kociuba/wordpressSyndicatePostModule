@@ -19,4 +19,6 @@ interface PublishDriver {
     public function getIsActive();
     
     public function setIsActive($isActive);
+    
+    public function getPublishedPostURL();
 }

@@ -18,7 +18,7 @@ jQuery(function () {
     jQuery(".test_connection").click(function () {
         var driverName = jQuery(this).siblings("input[name='driver_name']").val();
         var parameters = {};
-        jQuery(this).siblings("input[name^='driver_"+driverName+"_parameter']").each(function () {
+        jQuery(this).siblings("input[name^='driver_" + driverName + "_parameter']").each(function () {
             var paramName = jQuery(this).attr('name');
             var paramNameClean = /.*\[(.*)\]/.exec(paramName)[1];
             var paramValue = jQuery(this).val();
@@ -31,12 +31,17 @@ jQuery(function () {
             driver_name: driverName,
             driver_parameters: JSON.stringify(parameters),
         }, function (data) {
-            if(data===true) {
-                alert('Connection success');
-            } else {
+            try {
+                data = JSON.parse(data);
+                if (data === true) {
+                    alert('Connection success');
+                } else {
+                    alert('Connection faild');
+                }
+            } catch (SyntaxError) {
                 alert('Connection faild');
             }
-        }, 'json');
+        });
     });
 
 

@@ -17,7 +17,7 @@ jQuery(function () {
 
 
     jQuery('#spinner_chief_form #test_connection').click(function (e) {
-        jQuery.post(AJAX_URL_PREFIX + 'settings.php', {
+        jQuery.post(SPINNER_CHIEF_TEST_URL, {
             command:'spinner_chief_test_connection',
             username: jQuery("#spinner_chief_form input[name='spinner_chief_username']").val(),
             password: jQuery("#spinner_chief_form input[name='spinner_chief_password']").val(),
@@ -34,7 +34,7 @@ jQuery(function () {
     });
     
     jQuery('#test_mail').click(function(e){
-        jQuery.post(AJAX_URL_PREFIX + 'settings.php', {
+        jQuery.post(SEND_TEST_MAIL_URL, {
             command:'mail_test',
             username: jQuery("#notification_form input[name='phpmailer_username']").val(),
             password: jQuery("#notification_form input[name='phpmailer_password']").val(),

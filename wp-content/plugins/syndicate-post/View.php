@@ -40,6 +40,7 @@ class View {
     public function addWordpressBuildInScript($scriptName) {
         $this->wordpressScripts[] = $scriptName;
     }
+
     public function addScript($filePath) {
         $this->scripts[] = $filePath;
     }
@@ -48,7 +49,7 @@ class View {
         $this->styles[] = $styleFile;
     }
 
-    public function render() {
+    public function render($return = false) {
         foreach ($this->styles as $styleFile) {
             wp_register_style(basename($styleFile), self::$globalStyleDirectory . $styleFile);
             wp_enqueue_style(basename($styleFile));
@@ -62,7 +63,13 @@ class View {
         }
 
         extract($this->parameters);
+        if ($return) {
+            ob_start();
+        }
         require(self::$globalViewDirectory . $this->viewName);
+        if ($return) {
+            return ob_get_flush();
+        }
     }
 
 }

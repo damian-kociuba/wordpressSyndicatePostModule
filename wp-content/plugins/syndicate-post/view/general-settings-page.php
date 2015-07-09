@@ -3,8 +3,8 @@
 
 
 <script>
-    var AJAX_URL_PREFIX = '<?php echo SYNDICATE_POST_PLUGIN_URL . 'ajax/'; ?>';
-    
+    var SPINNER_CHIEF_TEST_URL = '<?php echo $spinner_chief_test_ajax_url;?>';
+    var SEND_TEST_MAIL_URL = '<?php echo $send_test_mail_ajax_url;?>';
 </script>
 <div class="tabs">
     <ul class="menu">
@@ -72,8 +72,8 @@
                     <option value="ssl" <?php if($phpmailer_smtp_secure==='ssl'):?>selected="selected"<?php endif;?>>SSL</option>
                 </select>
                 <br />
-                <label>To (required for test configuration)</label>
-                <input type="text" name="phpmailer_to" />
+                <label>Receiver address</label>
+                <input type="text" name="phpmailer_to" <?php if(isset($phpmailer_to)) {echo "value=\"$phpmailer_to\"";} ?> />
                 <br />
                 <input type="button" value="Test connection" id="test_mail"/>
             </fieldset>

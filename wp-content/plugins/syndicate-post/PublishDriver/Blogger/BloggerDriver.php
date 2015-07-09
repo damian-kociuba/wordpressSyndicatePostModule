@@ -3,6 +3,7 @@
 require_once realpath(dirname(__FILE__) . '/../OAuth2PublishDriver.php');
 require_once 'client/google-api-php-client/src/Google/autoload.php';
 require_once SYNDICATE_POST_PLUGIN_DIR . 'Preverseable.php';
+
 /**
  *
  * @author dkociuba
@@ -16,6 +17,7 @@ class BloggerDriver implements OAuth2PublishDriver, Preverseable {
     private $accessToken;
     private $isActive;
     private $blogId;
+    private $lastPublishedPostURL;
 
     /**
      * authentication code receiving from blogger
@@ -76,11 +78,16 @@ class BloggerDriver implements OAuth2PublishDriver, Preverseable {
         $mypost->setContent($content);
 
         $data = $blogger->posts->insert($this->blogId, $mypost); //post id needs here - put your blogger blog id
+        $this->lastPublishedPostURL = $data->url;
+    }
+
+    public function getPublishedPostURL() {
+        return $this->lastPublishedPostURL;
     }
 
     public function preserveParameters() {
         $parameters = array(
-            'isActive' =>$this->isActive,
+            'isActive' => $this->isActive,
             'clientId' => $this->clientId,
             'clientSecret' => $this->clientSecret,
             'developerKey' => $this->developerKey,
