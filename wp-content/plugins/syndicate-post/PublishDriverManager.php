@@ -2,6 +2,7 @@
 
 require_once 'PublishDriver/Tumblr/TumblrDriver.php';
 require_once 'PublishDriver/Blogger/BloggerDriver.php';
+require_once 'PublishDriver/LiveJournal/LiveJournalDriver.php';
 require_once 'PublishDriver/PublishDriver.php';
 
 /**
@@ -20,7 +21,8 @@ class PublishDriverManager {
     public function __construct() {
         $this->registredDrivers = array(
             new TumblrDriver(),
-            new BloggerDriver()
+            new BloggerDriver(),
+            new LiveJournalDriver()
         );
     }
 
